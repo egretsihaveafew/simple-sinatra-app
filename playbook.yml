@@ -30,3 +30,43 @@
 
   - name: Clone git repository
     git: repo=git://github.com/tnh/simple-sinatra-app.git dest=/var/www
+
+  - name: Set permissions on /var/www
+    file: path=/var/www state=directory owner=nginx group=web recurse=yes
+
+  - name: Create /var/www/config
+    file: path=/var/www/config state=directory owner=nginx group=web recurse=yes
+
+  - name: Create logging directory
+    file: path=/var/log/unicorn state=directory owner=nginx group=web
+
+  - name: Bundle install for Sinatra app
+    command: bundle install chdir=/var/www
+    # Doing this as the nginx user causes provisioning to hang; resorting to running it as root
+    # sudo: yes
+    # sudo_user: nginx
+
+  - name: Configure nginx.conf
+    template: src=templates/nginx.conf dest=/etc/nginx/nginx.conf
+
+  - name: Configure nginx default site
+    template: src=templates/sites-enabled-default.conf dest=/etc/nginx/sites-enabled/default
+
+  - name: Configure unicorn.rb
+    template: src=templates/unicorn.rb dest=/var/www/config/unicorn.rb owner=nginx group=web
+
+  - name: Kill all running unicorns; ignore if none exist 
+    command: killall unicorn_rails
+    sudo: yes
+    ignore_errors: yes
+
+  - name: Start unicorn
+    command: unicorn_rails -c /var/www/config/unicorn.rb -D
+    sudo: yes
+    sudo_user: nginx
+
+  - name: Start services
+    command: service nginx restart
+    sudo: yes
+    # Using the service module causes an error; resorting to the command module
+    # service: nginx state=restarted
