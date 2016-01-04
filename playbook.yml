@@ -5,5 +5,28 @@
 
   tasks:
 
+  - name: Create web group
+    group: name=web state=present
+
+  - name: Create nginx user
+    user: name=nginx group=web shell=/sbin/nologin home=/home/nginx
+
   - name: Install nginx
     apt: name=nginx state=latest update_cache=yes
+
+  - name: Install ruby-dev
+    apt: name=ruby-dev state=latest update_cache=yes
+
+  - name: Install bundler
+    apt: name=bundler state=latest update_cache=yes
+
+  - name: Install git
+    apt: name=git state=latest update_cache=yes
+
+  - name: Install gems
+    command: gem install unicorn
+    # Gem module isn't installing unicorn; resorting to command module
+    # gem: name=unicorn state=latest
+
+  - name: Clone git repository
+    git: repo=git://github.com/tnh/simple-sinatra-app.git dest=/var/www
