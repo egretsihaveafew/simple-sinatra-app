@@ -1,0 +1,13 @@
+#! /bin/sh
+### BEGIN INIT INFO
+# Provides:          
+# Required-Start:    
+# Required-Stop:     
+# X-Stop-After:      
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Start unicorn_rails server
+# Description:       
+### END INIT INFO
+
+sudo -u nginx unicorn_rails -c /var/www/config/unicorn.rb -D

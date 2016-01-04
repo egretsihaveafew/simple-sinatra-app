@@ -70,3 +70,9 @@
     sudo: yes
     # Using the service module causes an error; resorting to the command module
     # service: nginx state=restarted
+
+  - name: Create init.d script
+    template: src=templates/unicornd dest=/etc/init.d/unicornd mode=0755
+
+  - name: Install init.d script
+    command: update-rc.d unicornd defaults
